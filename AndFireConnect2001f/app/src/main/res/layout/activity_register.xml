@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/thanos"
+    android:gravity="center"
+    tools:context=".RegisterActivity">
+    <LinearLayout
+        android:layout_width="350dp"
+        android:layout_height="wrap_content"
+        android:background="#80DA03CF"
+        android:orientation="vertical">
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter User Email"
+            android:textColorHint="@color/white"
+            android:textColor="@color/white"
+            android:textAlignment="center"
+            android:id="@+id/txtREmail"
+            android:inputType="textEmailAddress"/>
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Password"
+            android:textColorHint="@color/white"
+            android:textColor="@color/white"
+            android:textAlignment="center"
+            android:id="@+id/txtRPass1"
+            android:inputType="textPassword"/>
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Confirm Password"
+            android:textColorHint="@color/white"
+            android:textColor="@color/white"
+            android:textAlignment="center"
+            android:id="@+id/txtRPass2"
+            android:inputType="textPassword"/>
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Register"
+            android:id="@+id/btnRRegis"/>
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Login"
+            android:id="@+id/btnRLogin"/>
+    </LinearLayout>
+</LinearLayout>
