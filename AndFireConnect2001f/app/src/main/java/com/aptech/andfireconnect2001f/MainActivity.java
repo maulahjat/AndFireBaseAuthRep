@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onClick(View view) {
                                 clearData();
-                                Snackbar snackbar1 = Snackbar.make(btnMLogin, "recordß deleted!", Snackbar.LENGTH_SHORT);
+                                Snackbar snackbar1 = Snackbar.make(btnMLogin, "record is deleted!", Snackbar.LENGTH_SHORT);
                                 snackbar1.show();
                             }
                         }).show();
