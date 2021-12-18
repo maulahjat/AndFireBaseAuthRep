@@ -12,14 +12,20 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.EventListener;
 import java.util.List;
 
 public class DisplayActivity extends AppCompatActivity {
@@ -39,11 +45,13 @@ public class DisplayActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display);
+        listItem = new ArrayList<>();
         InitView();
         String email = getIntent().getExtras().getString("email");
         if (email.length()>0) {
             txtDEmail.setText(String.valueOf(email));
         }
+
 
     }
     private void InitView(){
@@ -55,6 +63,10 @@ public class DisplayActivity extends AppCompatActivity {
         btnDUpdate = findViewById(R.id.btnDUpdate);
         btnDDelete = findViewById(R.id.btnDDelete);
         btnDLogout = findViewById(R.id.btnDLogout);
+        lstData = findViewById(R.id.lstData);
+
+        fetchData();
+        lstData.setAdapter(adapter);
 
         fAuth = FirebaseAuth.getInstance();
         //fUser = fAuth.getCurrentUser();
@@ -97,12 +109,16 @@ public class DisplayActivity extends AppCompatActivity {
                             public void onSuccess(Void aVoid) {
                                 Snackbar.make(btnDInsert,"Record is added",Snackbar.LENGTH_LONG)
                                         .show();
+                                listItem.clear();
+                                fetchData();
+                                ClearData();
                             }
                         }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Snackbar.make(btnDInsert,"Error in inserting record",Snackbar.LENGTH_LONG)
                                 .show();
+                        ClearData();
                     }
                 });
 
@@ -112,4 +128,43 @@ public class DisplayActivity extends AppCompatActivity {
 
     }
 
+    private void fetchData() {
+        FirebaseDatabase.getInstance().getReference("Items").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (lstData != null) {
+                    lstData.invalidateViews();
+                    listItem.clear();
+                }
+                for (DataSnapshot d:snapshot.getChildren()){
+                    if (d.getKey() == null) {
+                        continue;
+                    }else{
+                        String id = d.getKey();
+                        //Toast.makeText(DisplayActivity.this, d.child("itemName").getValue().toString(), Toast.LENGTH_SHORT).show();
+                        String name = d.child("itemName").getValue().toString();
+                        String quantity = d.child("quantity").getValue().toString();
+                        String rate = d.child("rate").getValue().toString();
+
+                        itemView view = new itemView(id,name,quantity,rate);
+                        listItem.add(view);
+                    }
+                    adapter = new itemAdapter(getApplicationContext(),listItem);
+                    adapter.notifyDataSetChanged();
+                    lstData.setAdapter(adapter);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void ClearData(){
+        txtDName.setText("");
+        txtDQuantity.setText("");
+        txtDRate.setText("");
+    }
 }
