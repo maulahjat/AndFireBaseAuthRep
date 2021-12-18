@@ -33,7 +33,10 @@ public class MainActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         FirebaseUser user = auth.getCurrentUser();
         if (user!=null) {
-            startActivity(new Intent(MainActivity.this,DisplayActivity.class));
+            Intent intent = new Intent(MainActivity.this,DisplayActivity.class);
+            String userEmail = auth.getCurrentUser().getEmail().toString();
+            intent.putExtra("email",userEmail);
+            startActivity(intent);
         }
     }
 
@@ -73,8 +76,10 @@ public class MainActivity extends AppCompatActivity {
                                 //intent
                                 String userEmail = user.getEmail().toString();
                                 Toast.makeText(MainActivity.this, "Successfully logged in, email verified", Toast.LENGTH_SHORT).show();
-
-                                startActivity(new Intent(MainActivity.this,DisplayActivity.class));
+                                Intent intent = new Intent(MainActivity.this,DisplayActivity.class);
+                                intent.putExtra("email",userEmail);
+                                startActivity(intent);
+                                //startActivity(new Intent(MainActivity.this,DisplayActivity.class));
                                 //finish();;
                             }
                             else{
