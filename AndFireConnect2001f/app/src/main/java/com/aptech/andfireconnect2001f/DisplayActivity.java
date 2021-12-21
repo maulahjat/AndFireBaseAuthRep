@@ -8,6 +8,7 @@ import android.content.ClipData;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -31,16 +32,13 @@ import java.util.List;
 public class DisplayActivity extends AppCompatActivity {
 
     TextView txtDEmail;
+    TextView lblDid;
     EditText txtDName, txtDQuantity, txtDRate;
     Button btnDInsert, btnDUpdate, btnDDelete, btnDLogout;
     List<itemView> listItem;
     ListView lstData;
-    FirebaseUser fUser;
     FirebaseAuth fAuth;
-    FirebaseDatabase fd;
     itemAdapter adapter;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,10 +49,9 @@ public class DisplayActivity extends AppCompatActivity {
         if (email.length()>0) {
             txtDEmail.setText(String.valueOf(email));
         }
-
-
     }
     private void InitView(){
+        lblDid = findViewById(R.id.lblDid);
         txtDEmail = findViewById(R.id.txtDEmail);
         txtDName = findViewById(R.id.txtDName);
         txtDQuantity = findViewById(R.id.txtDQuantity);
@@ -64,13 +61,22 @@ public class DisplayActivity extends AppCompatActivity {
         btnDDelete = findViewById(R.id.btnDDelete);
         btnDLogout = findViewById(R.id.btnDLogout);
         lstData = findViewById(R.id.lstData);
-
         fetchData();
         lstData.setAdapter(adapter);
-
         fAuth = FirebaseAuth.getInstance();
-        //fUser = fAuth.getCurrentUser();
-
+        lstData.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                itemView itemObj =(itemView) adapter.getItem(position);
+                Snackbar.make(lstData,String.format("your have selected item named %S",
+                        itemObj.getItemName().toUpperCase()),Snackbar.LENGTH_LONG)
+                        .show();
+                lblDid.setText(itemObj.getID().toString());
+                txtDName.setText(itemObj.getItemName().toString());
+                txtDQuantity.setText(itemObj.getQuantity().toString());
+                txtDRate.setText(itemObj.getRate().toString());
+            }
+        });
         btnDLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -79,21 +85,55 @@ public class DisplayActivity extends AppCompatActivity {
                 finish();
             }
         });
-
         btnDDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                String id = lblDid.getText().toString();
+                FirebaseDatabase.getInstance().getReference("Items").child(id).removeValue()
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Snackbar.make(btnDInsert,"Successfully deleted",Snackbar.LENGTH_LONG)
+                                        .show();
+                                ClearData();
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Snackbar.make(btnDInsert,"Error while deleting....",Snackbar.LENGTH_LONG)
+                                .show();
+                    }
+                });
+                ClearData();
             }
         });
-
         btnDUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String id = lblDid.getText().toString();
+                String name = txtDName.getText().toString();
+                String quantity = txtDQuantity.getText().toString();
+                String rate = txtDRate.getText().toString();
 
+                item itm = new item(name,quantity,rate);
+                FirebaseDatabase.getInstance().getReference("Items").child(id).setValue(itm)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Snackbar.make(btnDInsert,"Record is updated",Snackbar.LENGTH_LONG)
+                                        .show();
+                                ClearData();;
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Snackbar.make(btnDInsert,"Error in updating",Snackbar.LENGTH_LONG)
+                                .show();
+                    }
+                });
+                ClearData();
             }
         });
-
         btnDInsert.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -125,7 +165,6 @@ public class DisplayActivity extends AppCompatActivity {
 
             }
         });
-
     }
 
     private void fetchData() {
@@ -161,7 +200,6 @@ public class DisplayActivity extends AppCompatActivity {
             }
         });
     }
-
     private void ClearData(){
         txtDName.setText("");
         txtDQuantity.setText("");
